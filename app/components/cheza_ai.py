@@ -1,4 +1,5 @@
 import streamlit as st
+from app.ai.recommendation_engine import generate_ai_summary
 
 
 def show_cheza_ai(
@@ -9,101 +10,37 @@ def show_cheza_ai(
 ):
     st.subheader("🤖 ChezaAI Decision Engine")
 
-    messages = []
-
-    # -------------------------
-    # Decision Score
-    # -------------------------
-
-    score = 50
-
-    # -------------------------
-    # Win Rate
-    # -------------------------
-
-    if win_rate >= 60:
-        score += 20
-        messages.append(
-            "✅ Excellent win rate. Your strategy is performing consistently."
-        )
-
-    elif win_rate >= 50:
-        score += 10
-        messages.append(
-            "🟡 Win rate is stable, but there is room for improvement."
-        )
-
-    else:
-        score -= 10
-        messages.append(
-            "🔴 Win rate is low. Review your betting selections."
-        )
-
-    # -------------------------
-    # ROI
-    # -------------------------
-
-    if roi > 15:
-        score += 20
-        messages.append(
-            "📈 Strong ROI. Continue following disciplined bankroll management."
-        )
-
-    elif roi > 0:
-        score += 10
-        messages.append(
-            "📊 Positive ROI, but growth opportunities exist."
-        )
-
-    else:
-        score -= 20
-        messages.append(
-            "⚠️ Negative ROI detected. Reduce risk until performance improves."
-        )
-
-    # -------------------------
-    # Average Odds
-    # -------------------------
-
-    if average_odds > 7:
-        messages.append(
-            "🎯 High average odds suggest an aggressive betting strategy."
-        )
-    else:
-        messages.append(
-            "⚽ Odds selection appears balanced."
-        )
-
-    # -------------------------
-    # Profit
-    # -------------------------
-
-    if total_profit > 0:
-        messages.append(
-            f"💰 Overall profit: KES {total_profit:,.2f}"
-        )
-    else:
-        messages.append(
-            f"📉 Current loss: KES {abs(total_profit):,.2f}"
-        )
-
-    # -------------------------
-    # Keep score between 0 and 100
-    # -------------------------
-
-    score = max(0, min(score, 100))
-
-    # -------------------------
-    # Display Decision Score
-    # -------------------------
-
-    st.metric(
-        "🧠 Decision Score",
-        f"{score}/100"
+    # Get AI summary
+    ai = generate_ai_summary(
+        win_rate=win_rate,
+        roi=roi,
+        average_odds=average_odds,
+        total_profit=total_profit,
     )
 
-    # -------------------------
-    # Display AI Analysis
-    # -------------------------
+    col1, col2 = st.columns(2)
 
-    st.info("\n\n".join(messages))
+    with col1:
+        st.metric(
+            "🧠 Decision Score",
+            f"{ai['score']}/100"
+        )
+
+    with col2:
+
+        if ai["score"] >= 80:
+            st.success("🟢 LOW RISK")
+
+        elif ai["score"] >= 60:
+            st.warning("🟡 MODERATE RISK")
+
+        else:
+            st.error("🔴 HIGH RISK")
+
+    st.subheader("💡 AI Insight")
+
+    st.info(ai["insight"])
+
+    st.subheader("🎯 Recommendation")
+
+    st.success(ai["recommendation"])
