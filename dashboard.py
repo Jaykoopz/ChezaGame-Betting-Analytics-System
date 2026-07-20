@@ -1,6 +1,7 @@
 from app.analytics.filters import show_filters
 from app.components.header import show_header
 from app.components.metrics import show_metrics
+from app.components.cheza_ai import show_cheza_ai
 
 from scripts.betting_intelligence import BettingIntelligence
 from app.components.sidebar import show_sidebar
@@ -171,6 +172,13 @@ if uploaded_file:
         total_returns=total_returns
     )
 
+    show_cheza_ai(
+        win_rate=win_rate,
+        roi=roi,
+        total_profit=total_profit,
+        average_odds=average_odds,
+    )
+    
     st.divider()
 
     # ==================================================
